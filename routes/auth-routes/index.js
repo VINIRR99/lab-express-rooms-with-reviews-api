@@ -46,7 +46,9 @@ router.post("/login", async (req, res) => {
 
         res.status(200).json({ payload, token });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error.message === invalidLogin) {
+            res.status(401).json({ error: error.message })
+        } else res.status(500).json({ error: error.message });
     };
 });
 
