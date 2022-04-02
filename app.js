@@ -17,7 +17,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use("/auth", require("./routes/auth.routes"));
+app.use("/auth", require("./routes/auth-routes"))
 
 //app.use(require("./middlewares/auth.middlewares"));
 
