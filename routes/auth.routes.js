@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const router = Router();
 
 const User = require("../models/User.models");
 
@@ -6,32 +7,67 @@ const { genSalt, hash } = require("bcryptjs");
 
 const { sign } = require("jsonwebtoken");
 
-const router = Router()
+const checkInputs = async (
+    name,
+    username,
+    password,
+    passwordRepeat,
+    unfilledInputMsg,
+    differentPasswordsMsg,
+    usedUsernameMsg
+) => {
+    if (!name || !username || !password || !passwordRepeat) throw new Error(unfilledInputMsg);
+    if (password !== passwordRepeat) throw new Error(differentPasswordsMsg);
+
+    const user = await User.findOne({ username });
+    if (user) throw new Error(usedUsernameMsg);
+};
+
+const generatePasswordHash = async password => {
+    const salt = await genSalt(12);
+    return await hash(password, salt);
+};
+
+const fixName = name => {
+    const namesArray = name.split(" ").filter(item => item !== "");
+    const capitalizeFirst = namesArray.map(word => word.slice(0, 1).toUpperCase() + word.slice(1).toLowerCase());
+    return capitalizeFirst.join(" ");
+};
+
+const createUser = async (nameInput, usernameInput, passwordHash) => {
+    const { _id, name, username, rooms, reviews } = await User.create({
+        name: nameInput,
+        username: usernameInput,
+        password: passwordHash
+    });
+    return { _id, name, username, rooms, reviews };
+};
 
 router.post("/signup", async (req, res) => {
-    const passwordRequired = "Password is required!";
-    const passwordRepeatRequired = "Password repeat is required!";
+    const unfilledInput = "All fields must be filled!";
     const differentPasswords = "Password repeat is different!";
-    const usedUserName = "Username already used!";
+    const usedUsername = "Username already used!";
 
     try {
-        const { name: nameInput, username: usernameInput, password: passwordInput, passwordRepeat } = await req.body;
+        const { name, username, password, passwordRepeat } = await req.body;
 
-        if (passwordInput.length === 0) throw new Error(passwordRequired);
-        if ((passwordInput.length > 0) && (passwordRepeat.length === 0)) throw new Error(passwordRepeatRequired);
-        if (passwordInput !== passwordRepeat) throw new Error(differentPasswords);
-        
-        const user = await User.findOne({ username: usernameInput });
-        if (user) throw new Error(usedUserName);
+        await checkInputs(
+            name,
+            username,
+            password,
+            passwordRepeat,
+            unfilledInput,
+            differentPasswords,
+            usedUsername
+        );
 
-        const salt = await genSalt(12);
-        const passwordHash = await hash(passwordInput, salt);
+        const fixedName = await fixName(name);
 
-        const { _id, name, username, rooms, reviews } = await User.create({ name: nameInput, username: usernameInput, password: passwordHash });
+        const passwordHash = await generatePasswordHash(password);
 
-        const payload = { _id, name, username, rooms, reviews };
+        const payload = await createUser(fixedName, username, passwordHash);
 
-        const token = sign(payload, "secret", { expiresIn: "1day" });
+        const token = sign(payload, process.env.SECRET_JWT, { expiresIn: "1day" });
 
         res.status(200).json({ payload, token });
     } catch (error) {
