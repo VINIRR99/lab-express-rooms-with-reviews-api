@@ -19,7 +19,7 @@ app.use(cors(corsOptions));
 
 app.use("/auth", require("./routes/auth-routes"))
 
-//app.use(require("./middlewares/auth.middlewares"));
+app.use(require("./middlewares/auth.middlewares"));
 
 //app.use("/room", require("./routes/room.routes"));
 //app.use("/review", require("./routes/review.routes"));
