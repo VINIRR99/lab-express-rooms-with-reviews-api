@@ -1,7 +1,7 @@
 require("dotenv").config();
 
-//const connectDb = require("./configs/db.configs");
-//connectDb();
+const connectDb = require("./configs/db.configs");
+connectDb();
 
 const express = require("express");
 const cors = require("cors");
@@ -17,9 +17,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-//app.use("/auth", require("./routes/auth.routes"));
+app.use("/auth", require("./routes/auth-routes"))
 
-//app.use(require("./middlewares/auth.middlewares"));
+app.use(require("./middlewares/auth.middlewares"));
 
 //app.use("/room", require("./routes/room.routes"));
 //app.use("/review", require("./routes/review.routes"));
