@@ -35,4 +35,31 @@ router.post("/signup", async (req, res) => {
     };
 });
 
+const User = require("../../models/User.models");
+
+const { compare } = require("bcryptjs");
+
+router.post("/login", async (req, res) => {
+    const invalidLogin = "Username or password is invalid!";
+
+    try {
+        const { username: usernameInput, password } = await req.body;
+
+        const user = await User.findOne({ username: usernameInput }, { name: 1, password: 1, rooms: 1, reviews: 1 });
+        if (!user) throw new Error(invalidLogin);
+
+        const { _id, name, username, password: passwordHash, rooms, reviews } = await user;
+
+        const compareHash = await compare(password, passwordHash);
+        if (!user || !compareHash) throw new Error(invalidLogin);
+
+        const payload = { _id, name, username, rooms, reviews };
+        const token = sign(payload, process.env.SECRET_JWT, { expiresIn: "1day" });
+
+        res.status(200).json({ payload, token });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    };
+});
+
 module.exports = router;
