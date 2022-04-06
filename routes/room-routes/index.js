@@ -28,7 +28,15 @@ router.get("/", async (req, res) => {
     try {
         const allRooms = await getRooms({});
         res.status(200).json(allRooms);
-    } catch (error) {res.status(500).json({ message: "Error while getting all rooms", error: error.message })};
+    } catch (error) {res.status(500).json({ message: "Error while getting all rooms!", error: error.message })};
+});
+
+router.get("/user-rooms", async (req, res) => {
+    try {
+        const { _id: userId } = await req.user;
+        const userRooms = await getRooms({ user: userId });
+        res.status(200).json(userRooms);
+    } catch (error) {res.status(500).json({ message: "Error while getting user rooms!", error: error.message })};
 });
 
 module.exports = router;
