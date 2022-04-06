@@ -4,10 +4,10 @@ const { genSalt, hash, compare } = require("bcryptjs");
 
 module.exports = {
     checkSignupInputs: async (bodyRequest, errorMsgs) => {
-        const { name, username, password, passwordRepeat } = await bodyRequest;
+        const { name, username, password, passwordConfirmation } = await bodyRequest;
 
-        if (!name || !username || !password || !passwordRepeat) throw new Error(errorMsgs.unfilledInput);
-        if (password !== passwordRepeat) throw new Error(errorMsgs.differentPasswords);
+        if (!name || !username || !password || !passwordConfirmation) throw new Error(errorMsgs.unfilledInput);
+        if (password !== passwordConfirmation) throw new Error(errorMsgs.differentPasswords);
 
         const user = await User.findOne({ username }, { _id: 0, username: 1 });
         if (user) throw new Error(errorMsgs.usedUsername);
