@@ -10,7 +10,7 @@ const authorization = (req, res, next) => {
 
         req.user = { ...decodedToken };
         next();
-    } catch (error) {res.status(401).json({ error: error.message })};
+    } catch (error) {res.status(401).json({ message: "Unauthorized!", error: error.message })};
 };
 
 module.exports = authorization;
