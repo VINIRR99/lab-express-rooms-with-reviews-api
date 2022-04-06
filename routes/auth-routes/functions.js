@@ -45,7 +45,7 @@ module.exports = {
                 rooms: 1,
                 reviews: 1
             }
-        );
+        ).populate("rooms", "_id name description imageURL reviews user");
         if (!user) throw new Error(errorMsgs.invalidLogin);
 
         const { _id, name, username, profileImg, password: passwordHash, rooms, reviews } = await user;
