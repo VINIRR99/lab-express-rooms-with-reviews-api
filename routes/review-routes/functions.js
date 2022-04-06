@@ -23,5 +23,13 @@ module.exports = {
         const updatedReview = await Review.findOneAndUpdate({ _id: reviewId, user: userId }, { comment }, { new: true })
             .select("-createdAt -updatedAt -__v");
         return updatedReview;
+    },
+    deleteReview: async (reviewId, userId, notAllowedMsg) => {
+        const review = await Review.findOne({ _id: reviewId, user: userId }, { _id: 0, room: 1 });
+        if (!review) throw new Error(notAllowedMsg);
+
+        await Review.findOneAndDelete({ _id: reviewId, user: userId });
+        await Room.findByIdAndUpdate(review.room, { $pull: { reviews: reviewId } });
+        await User.findByIdAndUpdate(userId, { $pull: { reviews: reviewId } });
     }
 };

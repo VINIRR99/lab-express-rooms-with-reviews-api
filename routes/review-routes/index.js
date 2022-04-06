@@ -1,13 +1,14 @@
 const { Router } = require("express");
 const router = Router();
 
-const { makeReview, updateReview } = require("./functions");
-const errorMsgs = {
-    missingComent: "Missing comment!",
-    notAllowed: "User can't make a review in own room!"
-}
+const { makeReview, updateReview, deleteReview } = require("./functions");
 
 router.post("/:roomId", async (req, res) => {
+    const errorMsgs = {
+        missingComent: "Missing comment!",
+        notAllowed: "User can't make a review in own room!"
+    }
+
     try {
         const { comment } = await req.body;
         const { roomId } = req.params;
@@ -42,6 +43,20 @@ router.put("/:reviewId", async (req, res) => {
     } catch (error) {
         const status = (error.message === missingComent) ? 400 : 500;
         res.status(status).json({ message: "Error while updating review!", error: error.message });
+    };
+});
+
+router.delete("/:reviewId", async (req, res) => {
+    const notAllowed = "User can only delete own review!";
+
+    try {
+        const { reviewId } = req.params;
+        const { _id: userId } = await req.user;
+        await deleteReview(reviewId, userId, notAllowed);
+        res.status(204).json();
+    } catch (error) {
+        const status = (error.message === notAllowed) ? 405 : 500
+        res.status(status).json({ message: "Error while deleting review", error: error.message })
     };
 });
 
