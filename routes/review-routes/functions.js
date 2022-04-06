@@ -16,5 +16,12 @@ module.exports = {
         await Room.findByIdAndUpdate(roomId, { $push: { reviews: reviewId } });
         await User.findByIdAndUpdate(userId, { $push: { reviews: reviewId } });
         return { _id: reviewId, comment, room, user };
+    },
+    updateReview: async (reviewId, userId, comment, missingCommentMsg) => {
+        if (!comment) throw new Error(missingCommentMsg);
+
+        const updatedReview = await Review.findOneAndUpdate({ _id: reviewId, user: userId }, { comment }, { new: true })
+            .select("-createdAt -updatedAt -__v");
+        return updatedReview;
     }
 };

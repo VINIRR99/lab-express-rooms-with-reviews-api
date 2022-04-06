@@ -14,8 +14,8 @@ router.put("/:roomId", async (req, res) => {
     try {
         const { roomId } = req.params;
         const { _id: userId } = await req.user;
-        const updaedRoom = await updateRoom(roomId, await req.body, userId);
-        res.status(200).json(updaedRoom);
+        const updatedRoom = await updateRoom(roomId, await req.body, userId);
+        res.status(200).json(updatedRoom);
     } catch (error) {res.status(500).json ({ message: "Error while updating room!", error: error.message })};
 });
 
