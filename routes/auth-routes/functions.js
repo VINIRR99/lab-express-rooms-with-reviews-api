@@ -24,12 +24,12 @@ module.exports = {
         return capitalizeFirst.join(" ");
     },
     createUser: async (nameInput, usernameInput, passwordHash) => {
-        const { _id, name, username, rooms, reviews } = await User.create({
+        const { _id, name, username, profileImg, rooms, reviews } = await User.create({
             name: nameInput,
             username: usernameInput,
             password: passwordHash
         });
-        return { _id, name, username, rooms, reviews };
+        return { _id, name, username, profileImg, rooms, reviews };
     },
     checkLogin: async (bodyRequest, errorMsgs) => {
         const { username: usernameInput, password: passwordInput } = await bodyRequest;
@@ -40,6 +40,7 @@ module.exports = {
             {
                 name: 1,
                 username: 1,
+                profileImg: 1,
                 password: 1,
                 rooms: 1,
                 reviews: 1
@@ -47,11 +48,11 @@ module.exports = {
         );
         if (!user) throw new Error(errorMsgs.invalidLogin);
 
-        const { _id, name, username, password: passwordHash, rooms, reviews } = await user;
+        const { _id, name, username, profileImg, password: passwordHash, rooms, reviews } = await user;
 
         const compareHash = await compare(passwordInput, passwordHash);
         if (!compareHash) throw new Error(errorMsgs.invalidLogin);
 
-        return { _id, name, username, rooms, reviews };
+        return { _id, name, username, profileImg, rooms, reviews };
     }
 };
