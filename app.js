@@ -21,7 +21,7 @@ app.use("/auth", require("./routes/auth-routes"))
 
 app.use(require("./middlewares/auth.middleware"));
 
-//app.use("/room", require("./routes/room.routes"));
+app.use("/room", require("./routes/room.routes"));
 //app.use("/review", require("./routes/review.routes"));
 //app.use("/user", require("./routes/user.routes"));
 
