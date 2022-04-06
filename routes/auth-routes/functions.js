@@ -1,16 +1,18 @@
-const User = require("../../models/User.models");
+const User = require("../../models/User.model");
 
 const { genSalt, hash, compare } = require("bcryptjs");
 
 module.exports = {
-    checkSignupInputs: async (bodyRequest, unfilledInputMsg, differentPasswordsMsg, usedUsernameMsg) => {
-        const { name, username, password, passwordRepeat } = await bodyRequest;
+    checkSignupInputs: async (bodyRequest, errorMsgs) => {
+        const { name, username, password, passwordConfirmation } = await bodyRequest;
 
-        if (!name || !username || !password || !passwordRepeat) throw new Error(unfilledInputMsg);
-        if (password !== passwordRepeat) throw new Error(differentPasswordsMsg);
+        if (!name || !username || !password || !passwordConfirmation) throw new Error(errorMsgs.unfilledInput);
+        if (password !== passwordConfirmation) throw new Error(errorMsgs.differentPasswords);
 
-        const user = await User.findOne({ username });
-        if (user) throw new Error(usedUsernameMsg);
+        const user = await User.findOne({ username }, { _id: 0, username: 1 });
+        if (user) throw new Error(errorMsgs.usedUsername);
+
+        return { name, username, password };
     },
     generatePasswordHash: async password => {
         const salt = await genSalt(12);
@@ -22,30 +24,35 @@ module.exports = {
         return capitalizeFirst.join(" ");
     },
     createUser: async (nameInput, usernameInput, passwordHash) => {
-        const { _id, name, username, rooms, reviews } = await User.create({
+        const { _id, name, username, profileImg, rooms, reviews } = await User.create({
             name: nameInput,
             username: usernameInput,
             password: passwordHash
         });
-        return { _id, name, username, rooms, reviews };
+        return { _id, name, username, profileImg, rooms, reviews };
     },
-    checkLogin: async (usernameInput, password, invalidLoginMsg) => {
-        const user = await User.findOne({ username: usernameInput },
+    checkLogin: async (bodyRequest, errorMsgs) => {
+        const { username: usernameInput, password: passwordInput } = await bodyRequest;
+        if (!usernameInput || !passwordInput) throw new Error(errorMsgs.unfilledInput);
+
+        const user = await User.findOne(
+            { username: usernameInput },
             {
                 name: 1,
                 username: 1,
+                profileImg: 1,
                 password: 1,
                 rooms: 1,
                 reviews: 1
             }
-        );
-        if (!user) throw new Error(invalidLoginMsg);
+        ).populate("rooms", "_id name description imageURL reviews user");
+        if (!user) throw new Error(errorMsgs.invalidLogin);
 
-        const { name, username, password: passwordHash, rooms, reviews } = await user;
+        const { _id, name, username, profileImg, password: passwordHash, rooms, reviews } = await user;
 
-        const compareHash = await compare(password, passwordHash);
-        if (!compareHash) throw new Error(invalidLoginMsg);
+        const compareHash = await compare(passwordInput, passwordHash);
+        if (!compareHash) throw new Error(errorMsgs.invalidLogin);
 
-        return {name, username, rooms, reviews};
+        return { _id, name, username, profileImg, rooms, reviews };
     }
 };
