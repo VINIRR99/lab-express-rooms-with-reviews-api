@@ -18,5 +18,9 @@ module.exports = {
         const updatedRoom = await Room.findOneAndUpdate({ _id: roomId, user: userId }, bodyRequest, { new: true })
             .select("-createdAt -updatedAt -__v");
         return updatedRoom;
+    },
+    deleteRoom: async (roomId, userId) => {
+        await Room.findOneAndDelete({ _id: roomId, user: userId });
+        await User.findByIdAndUpdate(userId, { $pull: { rooms: roomId } });
     }
 };
