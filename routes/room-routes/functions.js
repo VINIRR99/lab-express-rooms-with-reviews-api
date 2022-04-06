@@ -22,5 +22,9 @@ module.exports = {
     deleteRoom: async (roomId, userId) => {
         await Room.findOneAndDelete({ _id: roomId, user: userId });
         await User.findByIdAndUpdate(userId, { $pull: { rooms: roomId } });
+    },
+    getRooms: async (query) => {
+        const allRooms = await Room.find(query, { createdAt: 0, updatedAt: 0, __v: 0 });
+        return allRooms;
     }
 };

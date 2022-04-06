@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 
-const { createRoom, updateRoom, deleteRoom } = require("./functions");
+const { createRoom, updateRoom, deleteRoom, getRooms } = require("./functions");
 
 router.post("/", async (req, res) => {
     try {
@@ -22,6 +22,13 @@ router.delete("/:roomId", async (req, res) => {
         await deleteRoom(req.params.roomId, await req.user._id);
         res.status(204).json();
     } catch (error) {res.status(500).json({ message: "Error while deleting room!", error: error.message })};
+});
+
+router.get("/", async (req, res) => {
+    try {
+        const allRooms = await getRooms({});
+        res.status(200).json(allRooms);
+    } catch (error) {res.status(500).json({ message: "Error while getting all rooms", error: error.message })};
 });
 
 module.exports = router;
