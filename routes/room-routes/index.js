@@ -12,14 +12,18 @@ router.post("/", async (req, res) => {
 
 router.put("/:roomId", async (req, res) => {
     try {
-        const updaedRoom = await updateRoom(req.params.roomId, await req.body, await req.user);
+        const { roomId } = req.params;
+        const { _id: userId } = await req.user;
+        const updaedRoom = await updateRoom(roomId, await req.body, userId);
         res.status(200).json(updaedRoom);
     } catch (error) {res.status(500).json ({ message: "Error while updating room!", error: error.message })};
 });
 
 router.delete("/:roomId", async (req, res) => {
     try {
-        await deleteRoom(req.params.roomId, await req.user._id);
+        const { roomId } = req.params;
+        const { _id: userId } = await req.user;
+        await deleteRoom(roomId, userId);
         res.status(204).json();
     } catch (error) {res.status(500).json({ message: "Error while deleting room!", error: error.message })};
 });
