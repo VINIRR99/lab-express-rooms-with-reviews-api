@@ -2,7 +2,7 @@
 
 # Rooms App with Reviews - final practice for project #3
 
-Link to your frontend repository here: [lab-express-rooms-with-reviews-frontend](https://github.com/VINIRR99/lab-express-rooms-with-reviews-frontend)
+Link to your frontend repository here: [lab-express-rooms-with-reviews-client](https://github.com/VINIRR99/lab-express-rooms-with-reviews-client)
 
 ## Introduction
 

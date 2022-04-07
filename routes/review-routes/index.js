@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 
-const { makeReview, updateReview, deleteReview } = require("./functions");
+const { makeReview, updateReview, deleteReview, getRoomComments } = require("./functions");
 
 router.post("/:roomId", async (req, res) => {
     const errorMsgs = {
@@ -57,6 +57,16 @@ router.delete("/:reviewId", async (req, res) => {
     } catch (error) {
         const status = (error.message === notAllowed) ? 405 : 500
         res.status(status).json({ message: "Error while deleting review", error: error.message })
+    };
+});
+
+router.get("/:roomId", async (req, res) => {
+    try {
+        const { roomId } = req.params;
+        const roomComments = await getRoomComments(roomId);
+        res.status(200).json(roomComments);
+    } catch (error) {
+        res.status(500).json({message: "Error getting the reviews in the rooms!", error: error.message })
     };
 });
 

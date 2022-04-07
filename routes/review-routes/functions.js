@@ -31,5 +31,9 @@ module.exports = {
         await Review.findOneAndDelete({ _id: reviewId, user: userId });
         await Room.findByIdAndUpdate(review.room, { $pull: { reviews: reviewId } });
         await User.findByIdAndUpdate(userId, { $pull: { reviews: reviewId } });
+    },
+    getRoomComments: async (roomId) => {
+        const roomReviews = await Review.find({ room: roomId }, { createdAt: 0, updatedAt: 0, __v: 0 });
+        return roomReviews;
     }
 };
